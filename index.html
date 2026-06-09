@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analisis Butir Soal - Arikunto & Sugiyono</title>
+  <meta name="description" content="Aplikasi web analisis butir soal interaktif untuk menghitung validitas, tingkat kesukaran, daya pembeda, dan reliabilitas KR-20 menggunakan metode Arikunto dan Sugiyono.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Sidebar Navigasi -->
+  <aside>
+    <div class="logo-container">
+      <div class="logo-icon">AB</div>
+      <div class="logo-text">
+        <h1>SiButir</h1>
+        <p>Analisis Butir Soal</p>
+      </div>
+    </div>
+
+    <nav>
+      <div class="nav-item active" data-tab="input-data" id="nav-input-data">
+        <i data-lucide="table-2"></i>
+        <span>Input Jawaban</span>
+      </div>
+      <div class="nav-item" data-tab="hasil-analisis" id="nav-hasil-analisis">
+        <i data-lucide="bar-chart-3"></i>
+        <span>Hasil Analisis</span>
+      </div>
+      <div class="nav-item" data-tab="cara-perhitungan" id="nav-cara-perhitungan">
+        <i data-lucide="calculator"></i>
+        <span>Detail Rumus Soal</span>
+      </div>
+      <div class="nav-item" data-tab="cara-reliabilitas" id="nav-cara-reliabilitas">
+        <i data-lucide="shield-check"></i>
+        <span>Reliabilitas KR-20</span>
+      </div>
+    </nav>
+
+    <div class="sidebar-watermark">
+      <div class="watermark-icon">
+        <i data-lucide="code-2"></i>
+      </div>
+      <div class="watermark-content">
+        <span class="watermark-label">BUILT BY</span>
+        <span class="watermark-author" title="Muhammad Ikman Maulana">M. Ikman Maulana</span>
+        <span class="watermark-sub">NIM 2406458</span>
+        <span class="watermark-sub text-upi">UPI Bumi Siliwangi</span>
+      </div>
+    </div>
+
+    <div class="theme-toggle-container">
+      <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Ubah Tema</span>
+      <button class="theme-toggle-btn" id="theme-toggle" title="Ganti Tema">
+        <i data-lucide="sun" class="sun-icon"></i>
+        <i data-lucide="moon" class="moon-icon" style="display: none;"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Konten Utama -->
+  <main>
+    <header>
+      <div class="page-title">
+        <h2 id="header-title">Analisis Butir Soal (Arikunto & Sugiyono)</h2>
+        <p>Kalkulator validitas, tingkat kesukaran, daya pembeda, dan reliabilitas KR-20.</p>
+      </div>
+
+      <div class="header-actions">
+        <div class="input-group" style="margin-right: 1rem;">
+          <label for="select-significance">Signifikansi r<sub>tabel</sub>:</label>
+          <select class="form-input" id="select-significance" style="width: 90px; height: 38px;">
+            <option value="0.05" selected>5% (0.05)</option>
+            <option value="0.01">1% (0.01)</option>
+          </select>
+        </div>
+        <button class="btn btn-secondary" id="btn-open-import" title="Impor Data Jawaban dari Excel">
+          <i data-lucide="upload-cloud"></i> Impor Excel
+        </button>
+        <button class="btn btn-success" id="btn-export-excel" title="Unduh Spreadsheet Excel">
+          <i data-lucide="download"></i> Ekspor Excel
+        </button>
+        <button class="btn btn-primary" id="btn-export-pdf" title="Cetak Laporan Lengkap ke PDF">
+          <i data-lucide="file-text"></i> Cetak Laporan
+        </button>
+      </div>
+    </header>
+
+    <!-- VIEW PANEL 1: INPUT DATA -->
+    <div id="input-data" class="view-panel active">
+      <div class="section-card">
+        <div class="card-header-row">
+          <div class="card-title-group">
+            <h3>Tabel Lembar Kerja (Spreadsheet)</h3>
+            <p>Masukkan huruf pilihan ganda (<strong>A, B, C, D, atau E</strong>) pada baris KUNCI JAWABAN dan baris responden. Sel jawaban siswa yang cocok dengan kunci jawaban akan otomatis disorot warna hijau.</p>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-primary" id="btn-load-sample" style="padding: 0.5rem 1rem; font-size: 0.8rem;">
+              <i data-lucide="sparkles"></i> Gunakan Contoh Data
+            </button>
+            <button class="btn btn-danger" id="btn-reset" style="padding: 0.5rem 1rem; font-size: 0.8rem;">
+              <i data-lucide="trash-2"></i> Kosongkan
+            </button>
+          </div>
+        </div>
+
+        <!-- Spreadsheet Container -->
+        <div class="spreadsheet-container">
+          <table class="sheet-table" id="data-sheet">
+            <thead>
+              <tr id="sheet-thead-row">
+                <!-- Diisi dinamis oleh JS -->
+              </tr>
+            </thead>
+            <tbody id="sheet-tbody">
+              <!-- Diisi dinamis oleh JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Grid Controls -->
+        <div class="grid-controls">
+          <div class="controls-left">
+            <div class="input-group">
+              <label for="input-students-count">Jumlah Siswa:</label>
+              <input type="number" id="input-students-count" class="form-input" readonly>
+              <button class="btn btn-secondary" id="btn-remove-row" style="padding: 0.25rem 0.5rem;" title="Hapus baris siswa terakhir">-</button>
+              <button class="btn btn-secondary" id="btn-add-row" style="padding: 0.25rem 0.5rem;" title="Tambah baris siswa baru">+</button>
+            </div>
+          </div>
+          <div class="controls-right">
+            <div class="input-group">
+              <label for="input-questions-count">Jumlah Soal:</label>
+              <input type="number" id="input-questions-count" class="form-input" readonly>
+              <button class="btn btn-secondary" id="btn-remove-col" style="padding: 0.25rem 0.5rem;" title="Hapus kolom soal terakhir">-</button>
+              <button class="btn btn-secondary" id="btn-add-col" style="padding: 0.25rem 0.5rem;" title="Tambah kolom soal baru">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW PANEL 2: HASIL ANALISIS -->
+    <div id="hasil-analisis" class="view-panel">
+      <!-- Widgets Grid -->
+      <div class="widgets-grid">
+        <div class="widget-card info">
+          <div class="widget-label">Jumlah Responden (N)</div>
+          <div class="widget-val" id="widget-respondents">0</div>
+          <div class="widget-subtext"><i class="lucide-users"></i> Total siswa teranalisis</div>
+        </div>
+        <div class="widget-card info">
+          <div class="widget-label">Jumlah Butir Soal (k)</div>
+          <div class="widget-val" id="widget-questions">0</div>
+          <div class="widget-subtext"><i class="lucide-help-circle"></i> Jumlah butir soal ujian</div>
+        </div>
+        <div class="widget-card" id="widget-kr-card">
+          <div class="widget-label">Reliabilitas KR-20 (r₁₁)</div>
+          <div class="widget-val" id="widget-kr-val">0.00</div>
+          <div class="widget-subtext" id="widget-kr-sub"><i class="lucide-activity"></i> Kategori</div>
+        </div>
+        <div class="widget-card success">
+          <div class="widget-label">Status Butir Soal</div>
+          <div class="widget-val" id="widget-valid-items">0 Soal</div>
+          <div class="widget-subtext" id="widget-invalid-sub"><i class="lucide-check-square"></i> Valid</div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-row">
+        <div class="chart-card">
+          <h4>Sebaran Tingkat Kesukaran (P)</h4>
+          <div class="chart-wrapper">
+            <canvas id="chart-difficulty"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h4>Kategori Validitas Soal</h4>
+          <div class="chart-wrapper">
+            <canvas id="chart-validity"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Table Card -->
+      <div class="section-card">
+        <div class="card-title-group">
+          <h3>Tabel Ringkasan Analisis Butir Soal</h3>
+          <p>Tabel rangkuman indeks kesukaran, daya pembeda, validitas Pearson ($r_{xy}$), dan status butir soal.</p>
+        </div>
+
+        <div class="data-table-container">
+          <table class="data-table" id="results-table">
+            <thead>
+              <tr>
+                <th>Butir Soal</th>
+                <th>Jumlah Benar (B)</th>
+                <th>Tingkat Kesukaran (P)</th>
+                <th>Daya Pembeda (D)</th>
+                <th>Korelasi r<sub>xy</sub></th>
+                <th>r<sub>tabel</sub></th>
+                <th>Status Validitas</th>
+              </tr>
+            </thead>
+            <tbody id="results-tbody">
+              <!-- Diisi dinamis oleh JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW PANEL 3: LANGKAH PERHITUNGAN DETAIL PER SOAL -->
+    <div id="cara-perhitungan" class="view-panel">
+      <div class="section-card">
+        <div class="card-title-group">
+          <h3 id="calc-title">Detail Analisis Statistik: Butir Soal 1</h3>
+          <p>Penjelasan lengkap proses matematika yang digunakan dalam menganalisis butir soal ini.</p>
+        </div>
+
+        <div class="step-container">
+          <!-- Sisi Kiri: Daftar Pilih Soal -->
+          <div class="item-selector-list" id="calc-item-selector">
+            <!-- Diisi dinamis oleh JS -->
+          </div>
+
+          <!-- Sisi Kanan: Detail Langkah -->
+          <div class="calculation-steps-detail">
+            <!-- 1. Tabel Bantu Pearson -->
+            <div>
+              <h4 style="margin-bottom: 0.5rem; font-size: 1rem;"><i class="lucide-table"></i> 1. Tabel Pembantu Korelasi Product Moment Pearson</h4>
+              <div class="data-table-container" style="max-height: 250px; overflow-y: auto;">
+                <table class="data-table" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th>Nama Responden</th>
+                      <th>Skor Butir (X)</th>
+                      <th>Skor Total (Y)</th>
+                      <th>X²</th>
+                      <th>Y²</th>
+                      <th>XY</th>
+                    </tr>
+                  </thead>
+                  <tbody id="calc-helper-tbody">
+                    <!-- Diisi dinamis oleh JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- 2. Rumus Validitas -->
+            <div>
+              <h4 style="margin-bottom: 0.5rem; font-size: 1rem;"><i class="lucide-check-circle"></i> 2. Langkah Hitung Validitas (Korelasi Pearson)</h4>
+              <p style="font-size: 0.85rem; color: var(--text-muted);">Substitusikan nilai tabel pembantu ke dalam rumus Pearson Product Moment:</p>
+              <div class="equation-box">
+                <div class="equation">
+                  r<sub>xy</sub> = [ NΣXY - (ΣX)(ΣY) ] / √[ (NΣX² - (ΣX)²) &times; (NΣY² - (ΣY)²) ]
+                </div>
+                <div class="equation-steps">
+                  <div id="val-eq-step-1"></div>
+                  <div id="val-eq-step-2"></div>
+                  <div id="val-eq-step-3"></div>
+                  <div id="val-eq-step-4"></div>
+                </div>
+              </div>
+              <div id="val-status-explanation" class="alert-box">
+                <!-- Diisi dinamis -->
+              </div>
+            </div>
+
+            <!-- 3. Rumus Tingkat Kesukaran -->
+            <div>
+              <h4 style="margin-bottom: 0.5rem; font-size: 1rem;"><i class="lucide-trending-up"></i> 3. Langkah Hitung Tingkat Kesukaran (P)</h4>
+              <p style="font-size: 0.85rem; color: var(--text-muted);">Diperoleh dari proporsi jumlah siswa menjawab benar dibagi jumlah seluruh siswa:</p>
+              <div class="equation-box">
+                <div class="equation" id="diff-eq-step">
+                  P = B / JS
+                </div>
+              </div>
+              <p style="font-size: 0.85rem; margin-top: 0.5rem;" id="diff-explanation">
+                <!-- Diisi dinamis -->
+              </p>
+            </div>
+
+            <!-- 4. Rumus Daya Pembeda -->
+            <div>
+              <h4 style="margin-bottom: 0.5rem; font-size: 1rem;"><i class="lucide-shuffle"></i> 4. Langkah Hitung Daya Pembeda (D)</h4>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">
+                Membagi siswa menjadi Kelompok Atas dan Kelompok Bawah berdasarkan peringkat total skor.
+              </p>
+              <div class="alert-box" id="disc-group-type" style="padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.75rem;">
+                <!-- Diisi dinamis -->
+              </div>
+              <div class="equation-box">
+                <div class="equation">
+                  D = P<sub>A</sub> - P<sub>B</sub> = (B<sub>A</sub> / J<sub>A</sub>) - (B<sub>B</sub> / J<sub>B</sub>)
+                </div>
+                <div class="equation-steps">
+                  <div id="disc-eq-step-1"></div>
+                  <div id="disc-eq-step-2"></div>
+                </div>
+              </div>
+              <p style="font-size: 0.85rem; margin-top: 0.5rem;" id="disc-explanation">
+                <!-- Diisi dinamis -->
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW PANEL 4: RELIABELITAS KR-20 DETAIL -->
+    <div id="cara-reliabilitas" class="view-panel">
+      <div class="section-card">
+        <div class="card-title-group">
+          <h3>Detail Analisis Reliabilitas (Kuder-Richardson 20)</h3>
+          <p>Penjelasan proses penentuan keandalan (reliability) dari tes secara keseluruhan menggunakan metode rumus KR-20.</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+          <!-- Tabel Butir Soal p q pq -->
+          <div>
+            <h4 style="margin-bottom: 0.75rem;"><i class="lucide-table"></i> Nilai Proporsi Benar (p) dan Salah (q) Per Soal</h4>
+            <div class="data-table-container" style="max-height: 400px; overflow-y: auto;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Butir Soal</th>
+                    <th>p (Proporsi Benar)</th>
+                    <th>q (1 - p)</th>
+                    <th>pq (Perkalian)</th>
+                  </tr>
+                </thead>
+                <tbody id="rel-table-tbody">
+                  <!-- Diisi dinamis oleh JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Perhitungan Varians dan KR-20 -->
+          <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <!-- Varians Total -->
+            <div>
+              <h4 style="margin-bottom: 0.5rem;"><i class="lucide-pie-chart"></i> 1. Hitung Varians Skor Total (S<sub>t</sub>²)</h4>
+              <p style="font-size: 0.85rem; color: var(--text-muted);">Varians dihitung dengan rumus statistik varians populasi (Arikunto):</p>
+              <div class="equation-box">
+                <div class="equation">
+                  S<sub>t</sub><sup>2</sup> = [ ΣY² - ((ΣY)² / N) ] / N
+                </div>
+                <div class="equation-steps">
+                  <div id="rel-var-step-1"></div>
+                  <div id="rel-var-step-2"></div>
+                  <div id="rel-var-step-3"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Rumus KR-20 -->
+            <div>
+              <h4 style="margin-bottom: 0.5rem;"><i class="lucide-award"></i> 2. Masukkan ke Rumus KR-20 (r₁₁)</h4>
+              <div class="equation-box">
+                <div class="equation">
+                  r<sub>11</sub> = [ k / (k - 1) ] &times; [ 1 - (Σpq / S<sub>t</sub>²) ]
+                </div>
+                <div class="equation-steps">
+                  <div id="rel-kr-step-1"></div>
+                  <div id="rel-kr-step-2"></div>
+                  <div id="rel-kr-step-3"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Hasil Kesimpulan -->
+            <div id="rel-status-explanation" class="alert-box">
+              <!-- Diisi dinamis -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Footer Watermark -->
+    <footer class="app-footer">
+      <div class="footer-content">
+        <p>Aplikasi Analisis Butir Soal (Arikunto & Sugiyono)</p>
+        <div class="footer-divider"></div>
+        <p class="footer-author">
+          Build by <span class="author-name">Muhammad Ikman Maulana</span> &bull; NIM 2406458 &bull; UPI Bumi Siliwangi
+        </p>
+      </div>
+    </footer>
+  </main>
+
+  <!-- MODAL IMPOR EXCEL -->
+  <div class="modal-overlay" id="import-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Impor Jawaban dari Excel / CSV</h3>
+        <button class="close-modal-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Format file harus memiliki baris header berisi kolom <strong>Nama</strong> (atau sejenisnya), diikuti kolom butir soal secara berurutan (S1, S2, dst.) berisi pilihan jawaban ganda (**A s.d. E**). Sangat direkomendasikan menyisipkan baris responden dengan nama <strong>KUNCI JAWABAN</strong> di baris paling atas untuk mendeteksi kunci jawaban secara otomatis.
+        </p>
+
+        <div class="file-dropzone" id="dropzone">
+          <i data-lucide="upload-cloud"></i>
+          <p style="font-weight: 600;">Tarik & Letakkan file Excel (.xlsx / .csv) di sini</p>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">atau klik untuk mencari file</span>
+          <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-cancel-import">Batal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Library Pihak Ketiga via CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <!-- Script Aplikasi -->
+  <script src="r_table.js"></script>
+  <script src="app.js"></script>
+  <script>
+    // Inisialisasi ikon Lucide setelah halaman dirender
+    lucide.createIcons();
+  </script>
+</body>
+</html>
